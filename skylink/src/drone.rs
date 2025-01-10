@@ -5,7 +5,7 @@ use wg_2024::controller::{DroneCommand, DroneEvent};
 use wg_2024::controller::DroneEvent::ControllerShortcut;
 use wg_2024::drone::Drone;
 use wg_2024::packet::{Packet, PacketType, FloodResponse, NodeType, FloodRequest, NackType};
-use crate::error::create_error;
+use crate::error::{crashing_create_error, create_error};
 use crate::checks::*;
 
 pub struct SkyLinkDrone {
@@ -224,13 +224,8 @@ impl SkyLinkDrone {
     fn crashing_handle_packet(&mut self, packet: Packet) {
         match packet.clone().pack_type {
             PacketType::MsgFragment(_fragment) => {
-                self.controller_send
-                    .send(DroneEvent::PacketDropped(packet.clone()))
-                    .unwrap();
-                // Notify the sim contr that the packet was dropped.
-
                 // If the message is a fragment, I send back a Nack
-                let err = create_error(self.id, packet, NackType::ErrorInRouting(self.id));
+                let err = crashing_create_error(self.id, packet);
                 self.send_nack(&err.routing_header.hops[1].clone(), err);
             }
             PacketType::FloodRequest(_flood_request) => {} //I discard them.
