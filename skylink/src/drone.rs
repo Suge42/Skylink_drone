@@ -1,5 +1,5 @@
-use crate::skylink_drone::checks::{final_destination_check, id_hop_match_check, is_next_hop_check, pdr_check};
-use crate::skylink_drone::error::{crashing_create_error, create_error};
+use crate::checks::{final_destination_check, id_hop_match_check, is_next_hop_check, pdr_check};
+use crate::error::{crashing_create_error, create_error};
 use crossbeam_channel::{select_biased, Receiver, Sender};
 use std::collections::{HashMap, HashSet};
 use wg_2024::controller::DroneEvent::ControllerShortcut;
