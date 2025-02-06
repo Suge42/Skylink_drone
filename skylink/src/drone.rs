@@ -224,7 +224,6 @@ impl SkyLinkDrone {
                                     if err.routing_header.destination().unwrap() != self.id {
                                         self.handle_packet(err);
                                     }
-
                                 }
                                 _ => {
                                     self.handle_packet(err);
@@ -237,6 +236,17 @@ impl SkyLinkDrone {
                         PacketType::MsgFragment(_) => {
                             unreachable!()
                         },
+                        _ => {
+                            self.controller_send.send(ControllerShortcut(err)).unwrap();
+                            //If I had got an error from the checks of the routing of an
+                            //Ack, Nack or FloodResponse, I just forward it through the Simulation Controller.
+                        }
+                        PacketType::FloodRequest(_) => {
+                            unreachable!()
+                        }
+                        PacketType::MsgFragment(_) => {
+                            unreachable!()
+                        }
                         _ => {
                             self.controller_send.send(ControllerShortcut(err)).unwrap();
                             //If I had got an error from the checks of the routing of an
@@ -280,8 +290,9 @@ impl SkyLinkDrone {
         //Check if we're on the right hop.
         id_hop_match_check(&self, packet.clone())?;
         //Increase the index, if it makes sense to do it (he is not the destination)
-        if packet.routing_header.hop_index +1 < packet.routing_header.hops.len(){
-        packet.routing_header.hop_index += 1;}
+        if packet.routing_header.hop_index + 1 < packet.routing_header.hops.len() {
+            packet.routing_header.hop_index += 1;
+        }
         //Check if we're a final destination.
         final_destination_check(&self, packet.clone())?;
         //Check if the packet is dropped (only when msg_fragment).
