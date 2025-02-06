@@ -1,5 +1,5 @@
-use crate::skylink_drone::drone::SkyLinkDrone;
-use crate::skylink_drone::error::create_error;
+use crate::drone::SkyLinkDrone;
+use crate::error::create_error;
 use wg_2024::packet::{NackType, Packet, PacketType};
 
 pub fn id_hop_match_check(drone: &SkyLinkDrone, packet: Packet) -> Result<(), Packet> {
