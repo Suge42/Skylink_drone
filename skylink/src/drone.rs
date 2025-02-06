@@ -198,9 +198,7 @@ impl SkyLinkDrone {
                         self.send_nack(&err.routing_header.hops[1].clone(), err);
                         //If the message wasn't sent, despite all the checks, I still send an error back.
                     } else {
-                        self.controller_send
-                            .send(ControllerShortcut(packet))
-                            .unwrap();
+                        self.controller_send.send(ControllerShortcut(packet)).unwrap();
                         // In case I get an error for any packet that wasn't a fragment, I need to
                         // pass through the sim contr. (Keep in mind that FloodRequest can't arrive here)
                     }
@@ -231,6 +229,17 @@ impl SkyLinkDrone {
                                     self.handle_packet(err);
                                 }
                             }
+                        },
+                        PacketType::FloodRequest(_) => {
+                            unreachable!()
+                        },
+                        PacketType::MsgFragment(_) => {
+                            unreachable!()
+                        },
+                        _ => {
+                            self.controller_send.send(ControllerShortcut(err)).unwrap();
+                            //If I had got an error from the checks of the routing of an
+                            //Ack, Nack or FloodResponse, I just forward it through the Simulation Controller.
                         }
                         PacketType::FloodRequest(_) => {
                             unreachable!()
