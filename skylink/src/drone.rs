@@ -48,7 +48,6 @@ impl Drone for SkyLinkDrone {
     }
 
     fn run(&mut self) {
-        let mut no_cmd_sender = false;
         let mut no_pkt_sender = false;
         loop {
             if !self.crashing {
@@ -65,28 +64,24 @@ impl Drone for SkyLinkDrone {
                     }
                 }
             } else {
-                if !no_cmd_sender {
-                    select! {
-                        recv(self.controller_recv) -> cmd => {
-                            // If I'm in crushing behavior, I still listen for RemoveSender command,
-                            // to avoid neighbour drones not crushing because of each other existence.
-                            match cmd {
-                                Ok(command) => {
-                                    if let DroneCommand::RemoveSender(node_id) = command {
-                                        if self.packet_send.contains_key(&node_id) {
-                                            if let Some(to_be_dropped) = self.packet_send.remove(&node_id) {
-                                                drop(to_be_dropped);
-                                            }
+                select! {
+                    recv(self.controller_recv) -> cmd => {
+                        // If I'm in crushing behavior, I still listen for RemoveSender command,
+                        // to avoid neighbour drones not crushing because of each other existence.
+                        match cmd {
+                            Ok(command) => {
+                                if let DroneCommand::RemoveSender(node_id) = command {
+                                    if self.packet_send.contains_key(&node_id) {
+                                        if let Some(to_be_dropped) = self.packet_send.remove(&node_id) {
+                                            drop(to_be_dropped);
                                         }
                                     }
-                                },
-                                Err(_) => {
-                                    no_cmd_sender = true;
                                 }
-                            }
+                            },
+                            Err(_) => {}
                         }
                     }
-                };
+                }
                 if !no_pkt_sender{
                     select! {
                         recv(self.packet_recv) -> pkt => {
@@ -102,7 +97,7 @@ impl Drone for SkyLinkDrone {
                     }
                 }
 
-                if no_cmd_sender && no_pkt_sender {
+                if no_pkt_sender {
                     break;
                 }
             }
