@@ -216,7 +216,7 @@ impl SkyLinkDrone {
                                 NackType::UnexpectedRecipient(_) => {
                                     //If my drone isn't the one that should have received the message, I've to
                                     //route the message differently, since I'm not the first id in the routing header.
-                                    self.send_nack(&err.routing_header.hops[0].clone(), err);
+                                    self.send_nack(&err.routing_header.hops[1].clone(), err);
                                 }
                                 NackType::Dropped => {
                                     if err.routing_header.source().unwrap() == self.id {
