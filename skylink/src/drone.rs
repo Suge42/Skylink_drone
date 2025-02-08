@@ -48,6 +48,8 @@ impl Drone for SkyLinkDrone {
     }
 
     fn run(&mut self) {
+        let mut no_cmd_sender = false;
+        let mut no_pkt_sender = false;
         loop {
             if !self.crashing {
                 select_biased! {
@@ -63,8 +65,6 @@ impl Drone for SkyLinkDrone {
                     }
                 }
             } else {
-                let mut no_cmd_sender = false;
-                let mut no_pkt_sender = false;
                 if !no_cmd_sender {
                     select! {
                         recv(self.controller_recv) -> cmd => {
