@@ -64,7 +64,7 @@ impl Drone for SkyLinkDrone {
                     }
                 }
             } else {
-                select! {
+                /*select! {
                     recv(self.controller_recv) -> cmd => {
                         // If I'm in crushing behavior, I still listen for RemoveSender command,
                         // to avoid neighbour drones not crushing because of each other existence.
@@ -81,7 +81,7 @@ impl Drone for SkyLinkDrone {
                             Err(_) => {}
                         }
                     }
-                }
+                }*/
                 if !no_pkt_sender{
                     select! {
                         recv(self.packet_recv) -> pkt => {
