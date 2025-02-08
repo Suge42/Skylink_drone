@@ -8,7 +8,7 @@ pub fn id_hop_match_check(drone: &SkyLinkDrone, packet: Packet) -> Result<(), Pa
     } else {
         match packet.pack_type.clone() {
             PacketType::MsgFragment(_fragment) => Err(create_error(
-                packet.routing_header.hops[packet.routing_header.hop_index - 1],
+                packet.routing_header.hops[packet.routing_header.hop_index],
                 packet,
                 NackType::UnexpectedRecipient(drone.get_id()),
             )),
