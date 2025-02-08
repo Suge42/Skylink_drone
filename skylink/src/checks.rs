@@ -2,7 +2,7 @@ use crate::drone::SkyLinkDrone;
 use crate::error::create_error;
 use wg_2024::packet::{NackType, Packet, PacketType};
 
-pub fn id_hop_match_check(drone: &SkyLinkDrone, packet: Packet) -> Result<(), Packet> {
+pub fn id_hop_match_check(drone: &SkyLinkDrone, mut packet: Packet) -> Result<(), Packet> {
     if packet.routing_header.hops[packet.routing_header.hop_index] == drone.get_id() {
         Ok(())
     } else {
