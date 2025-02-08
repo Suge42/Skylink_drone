@@ -7,11 +7,14 @@ pub fn id_hop_match_check(drone: &SkyLinkDrone, packet: Packet) -> Result<(), Pa
         Ok(())
     } else {
         match packet.pack_type.clone() {
-            PacketType::MsgFragment(_fragment) => Err(create_error(
-                packet.routing_header.hops[packet.routing_header.hop_index],
-                packet,
-                NackType::UnexpectedRecipient(drone.get_id()),
-            )),
+            PacketType::MsgFragment(_fragment) => {
+                packet.routing_header.hops[packet.routing_header.hop_index] = drone.get_id();
+                Err(create_error(
+                    packet.routing_header.hops[packet.routing_header.hop_index],
+                    packet,
+                    NackType::UnexpectedRecipient(drone.get_id()),
+                ))
+            },
             PacketType::FloodRequest(_) => unreachable!(),
             // In case the packet wasn't a message I send it back as it is to pass through the SC shortcut.
             _ => Err(packet),
