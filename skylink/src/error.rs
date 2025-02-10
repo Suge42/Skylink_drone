@@ -47,7 +47,7 @@ pub fn crashing_create_error(starting_id: NodeId, packet: Packet) -> Packet {
         routing_header: SourceRoutingHeader {
             hop_index: 0,
             // I cut at the cell before, since the error should be like it was sent by previous node.
-            hops: packet.routing_header.hops[0..position].to_vec()
+            hops: packet.routing_header.hops[0..position+1].to_vec()
                 .into_iter()
                 .rev()
                 .collect::<Vec<NodeId>>()
