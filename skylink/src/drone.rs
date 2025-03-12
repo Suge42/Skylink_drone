@@ -205,14 +205,14 @@ impl SkyLinkDrone {
                 }
                 //Otherwise the error is already the right one to send.
                 Err(err) => {
-                    match err.pack_type.clone() {
-                        PacketType::Nack(nack) => {
+                    if let PacketType::MsgFragment(_) = packet.pack_type.clone() {
+                        if let PacketType::Nack(nack) = err.pack_type.clone() {
                             match nack.nack_type {
                                 NackType::UnexpectedRecipient(_) => {
                                     //If my drone isn't the one that should have received the message, I've to
                                     //route the message differently, since I'm not the first id in the routing header.
                                     self.send_nack(&err.routing_header.hops[1].clone(), err);
-                                }
+                                },
                                 NackType::Dropped => {
                                     if err.routing_header.source().unwrap() == self.id {
                                         self.controller_send
@@ -224,23 +224,20 @@ impl SkyLinkDrone {
                                     if err.routing_header.destination().unwrap() != self.id {
                                         self.handle_packet(err);
                                     }
-                                }
+                                },
                                 _ => {
                                     self.handle_packet(err);
                                 }
                             }
-                        },
-                        PacketType::FloodRequest(_) => {
-                            unreachable!()
-                        },
-                        PacketType::MsgFragment(_) => {
-                            unreachable!()
-                        },
-                        _ => {
+                        } else {
                             self.controller_send.send(ControllerShortcut(err)).unwrap();
-                            //If I had got an error from the checks of the routing of an
-                            //Ack, Nack or FloodResponse, I just forward it through the Simulation Controller.
+                            // If I had got an error from the checks of the routing of an
+                            // Ack, Nack or FloodResponse, I just forward it through the Simulation Controller.
                         }
+                    } else {
+                        self.controller_send.send(ControllerShortcut(err)).unwrap();
+                        // If I had got an error from the checks of the routing of an
+                        // Ack, Nack or FloodResponse, I just forward it through the Simulation Controller.
                     }
                 }
             }
