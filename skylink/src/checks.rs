@@ -16,6 +16,7 @@ pub fn id_hop_match_check(drone: &SkyLinkDrone, mut packet: Packet) -> Result<()
                 ))
             },
             PacketType::FloodRequest(_) => unreachable!(),
+
             // In case the packet wasn't a message I send it back as it is to pass through the SC shortcut.
             _ => Err(packet),
         }
@@ -53,6 +54,7 @@ pub fn is_next_hop_check(drone: &SkyLinkDrone, packet: Packet) -> Result<(), Pac
     }
 }
 pub fn pdr_check(drone: &SkyLinkDrone, packet: Packet) -> Result<(), Packet> {
+    // I apply the pdr check only on MsgFragments.
     if let PacketType::MsgFragment(_) = packet.pack_type.clone() {
         let random_number: u32 = fastrand::u32(0..100);
         if random_number < drone.get_pdr() {
