@@ -176,7 +176,7 @@ impl SkyLinkDrone {
                 self.send_flood_response(flood_request);
             }
         } else {
-            //If the packet is not a flood response.
+            //If the packet is not a flood request.
             match self.apply_checks(packet.clone()) {
                 //If every check is passed
                 Ok(packet) => {
@@ -203,9 +203,12 @@ impl SkyLinkDrone {
                         // pass through the sim contr. (Keep in mind that FloodRequest can't arrive here)
                     }
                 }
+
                 //Otherwise the error is already the right one to send.
                 Err(err) => {
                     if let PacketType::MsgFragment(_) = packet.pack_type.clone() {
+                        //In case the original packet was a MsgFragment, the error is actually the generated Nack.
+
                         if let PacketType::Nack(nack) = err.pack_type.clone() {
                             match nack.nack_type {
                                 NackType::UnexpectedRecipient(_) => {
@@ -230,9 +233,8 @@ impl SkyLinkDrone {
                                 }
                             }
                         } else {
-                            self.controller_send.send(ControllerShortcut(err)).unwrap();
-                            // If I had got an error from the checks of the routing of an
-                            // Ack, Nack or FloodResponse, I just forward it through the Simulation Controller.
+                            unreachable!();
+                            // If the original packet was a MsgFragment, we should only receive Nack as err.
                         }
                     } else {
                         self.controller_send.send(ControllerShortcut(err)).unwrap();
