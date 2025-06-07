@@ -3,25 +3,25 @@ use wg_2024::packet::{Nack, NackType, Packet, PacketType};
 
 pub fn create_error(starting_id: NodeId, packet: Packet, nack_type: NackType) -> Packet {
     let mut fragment_index = 0;
-    if let PacketType::MsgFragment(msg_fragment) = packet.pack_type {
+    if let PacketType::MsgFragment(msg_fragment) = packet.clone().pack_type {
         fragment_index = msg_fragment.fragment_index;
     }
 
-    create_packet(fragment_index, nack_type, packet);
+    create_packet(fragment_index, starting_id: NodeId, nack_type, packet)
 }
 
 pub fn crashing_create_error(starting_id: NodeId, packet: Packet) -> Packet {
     let mut fragment_index = 0;
-    if let PacketType::MsgFragment(msg_fragment) = packet.pack_type {
+    if let PacketType::MsgFragment(msg_fragment) = packet.clone().pack_type {
         fragment_index = msg_fragment.fragment_index;
     }
 
     let nack_type = NackType::ErrorInRouting(starting_id);
 
-    create_packet(fragment_index, nack_type, packet);
+    create_packet(fragment_index, starting_id: NodeId, nack_type, packet)
 }
 
-fn create_packet(fragment_index: i32, nack_type: NackType, packet: Packet) -> Packet {
+fn create_packet(fragment_index: u64, starting_id: NodeId, nack_type: NackType, packet: Packet) -> Packet {
     let position = packet.routing_header.hops
         .iter()
         .position(|x| *x == starting_id).unwrap();
