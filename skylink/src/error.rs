@@ -7,7 +7,7 @@ pub fn create_error(starting_id: NodeId, packet: Packet, nack_type: NackType) ->
         fragment_index = msg_fragment.fragment_index;
     }
 
-    create_packet(fragment_index, starting_id: NodeId, nack_type, packet)
+    create_packet(fragment_index, starting_id, nack_type, packet)
 }
 
 pub fn crashing_create_error(starting_id: NodeId, packet: Packet) -> Packet {
@@ -18,7 +18,7 @@ pub fn crashing_create_error(starting_id: NodeId, packet: Packet) -> Packet {
 
     let nack_type = NackType::ErrorInRouting(starting_id);
 
-    create_packet(fragment_index, starting_id: NodeId, nack_type, packet)
+    create_packet(fragment_index, starting_id, nack_type, packet)
 }
 
 fn create_packet(fragment_index: u64, starting_id: NodeId, nack_type: NackType, packet: Packet) -> Packet {
